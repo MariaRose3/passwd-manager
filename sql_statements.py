@@ -6,7 +6,7 @@ def insert_db_row():
     
 
 def delete_db_row(): 
-    sql_delete_query = """Delete from Vault where URL = %s"""
+    sql_delete_query = """DELETE FROM Vault WHERE URL = %s"""
     return sql_delete_query
 
 def update_db_url():

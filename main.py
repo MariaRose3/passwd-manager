@@ -1,7 +1,7 @@
 import password_generator
 import sql_statements
 import db_connect 
-import psycopg2
+# import psycopg2
 import argparse
 import master_password
 import getpass
@@ -15,18 +15,16 @@ def main():
     
     master_password_input = getpass.getpass("Master Password: ").encode()
 
-    second_FA_location = "Dee Boo Dah".encode()
+    second_FA_location = "Memento Mori".encode()
 
     master_password_hash = hashlib.sha256(master_password_input + second_FA_location).hexdigest()
 
     if master_password.query_master_pwd(master_password_input, second_FA_location) is True:
-        
         connection = db_connect.connection_db()
-
         print("\nSucessfully Authenticated.\n")
 
     else:
-        print("Failed to authenticate into server. Run the program again.")
+        print("Failed to authenticate into server. Please enter the correct Master password.")
         sys.exit() 
         
 
@@ -51,13 +49,13 @@ def main():
         username = args.add[1]
         password = password_generator.password_gen(20)
         password_official = master_password.encrypt_password(password, master_password_hash)
-        cursor.execute(sql.insert_db_row(), (URL, username, password_official))
+        cursor.execute(sql_statements.insert_db_row(), (URL, username, password_official))
         print("Record Added:" + "\n URL: {0}, Username: {1}, Password: {2} (Plaintext Password)".format(URL, username, password))
         print("Record Added:" + "\n URL: {0}, Username: {1}, Password: {2} (Encrypted Ciphertext to be Stored)".format(URL, username, password_official))
 
     if args.query:
         URL = args.query[0]
-        cursor.execute(sql.select_db_entry(), (URL, ))
+        cursor.execute(sql_statements.select_db_entry(), (URL, ))
         record = cursor.fetchone()
         password_field = record[2]
         decrypt_password = master_password.decrypt_password(password_field, master_password_hash)
@@ -78,24 +76,24 @@ def main():
         username = args.add_password[1]
         password = args.add_password[2]
         password_official = master_password.encrypt_password(password, master_password_hash)
-        cursor.execute(sql.insert_db_row(), (URL, username, password_official))
+        cursor.execute(sql_statements.insert_db_row(), (URL, username, password_official))
         print("Record added with custom password.")
 
     if args.update_url:
         new_URL = args.update_url[0]
         old_URL = args.update_url[1]
-        cursor.execute(sql.update_db_url(), (new_URL, old_URL, ))
+        cursor.execute(sql_statements.update_db_url(), (new_URL, old_URL, ))
 
     if args.update_username:
         new_username = args.update_username[0]
         URL = args.update_username[1]
-        cursor.execute(sql.update_db_usrname(), (new_username, URL ))
+        cursor.execute(sql_statements.update_db_usrname(), (new_username, URL ))
 
     if args.update_password:
         print("Please type in old password: ")
         new_password = args.update_password[0]
         URL = args.update_password[1]
-        cursor.execute(sql.update_db_passwd(), (new_password, URL ))
+        cursor.execute(sql_statements.update_db_passwd(), (new_password, URL ))
 
     if args.list:
         cursor.execute("SELECT * from Vault")
